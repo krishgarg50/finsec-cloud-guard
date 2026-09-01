@@ -51,3 +51,22 @@ def evaluate_iam_root_mfa(iam_data):
             "compliance_mappings": []
         })
     return findings
+def evaluate_iam_user_no_mfa(iam_data):
+    findings = []
+    for user in iam_data.get("users", []):
+        if not user.get("mfa_active", False):
+            findings.append({
+                "rule_id": "IAM_USER_NO_MFA",
+                "severity_raw": "MEDIUM",
+                "resource": {
+                    "type": "AWS::IAM::User",
+                    "id": user["user_name"],
+                    "arn": user["arn"]
+                },
+                "status": "FAIL",
+                "risk_score": 0,
+                "score_breakdown": [],
+                "explanation": "",
+                "compliance_mappings": []
+            })
+    return findings
