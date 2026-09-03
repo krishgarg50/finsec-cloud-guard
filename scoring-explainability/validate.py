@@ -6,7 +6,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = ROOT / "shared" / "finding_schema.json"
 DEFAULT_FINDINGS_PATH = ROOT / "shared" / "mock_findings.json"
 
