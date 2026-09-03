@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Finding",
+  "description": "Schema for a single cloud misconfiguration finding produced by the detection/scoring pipeline.",
+  "type": "object",
+  "required": [
+    "finding_id",
+    "rule_id",
+    "scan_id",
+    "resource",
+    "detection_source",
+    "severity_raw",
+    "risk_score",
+    "score_breakdown",
+    "compliance_mappings",
+    "explanation",
+    "status",
+    "detected_at",
+    "last_seen_at"
+  ],
+  "properties": {
+    "finding_id": {
+      "type": "string",
+      "description": "Unique identifier for this finding (UUID)."
+    },
+    "rule_id": {
+      "type": "string",
+      "description": "Identifier of the rule that produced this finding, e.g. 'S3_PUBLIC_ACCESS'."
+    },
+    "scan_id": {
+      "type": "string",
+      "description": "Identifier grouping all findings from the same scan run (UUID)."
+    },
+    "resource": {
+      "type": "object",
+      "required": ["type", "id", "name", "region"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Resource type, e.g. 's3_bucket', 'iam_policy', 'security_group', 'ebs_volume', 'rds_instance', 'iam_user'."
+        },
+        "id": {
+          "type": "string",
+          "description": "ARN or unique resource identifier."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable resource name."
+        },
+        "region": {
+          "type": "string",
+          "description": "AWS region, or 'global' for IAM resources."
+        }
+      }
+    },
+    "detection_source": {
+      "type": "string",
+      "enum": ["rule_engine", "anomaly_detection"],
+      "description": "Which subsystem produced this finding."
+    },
+    "severity_raw": {
+      "type": "string",
+      "enum": ["high", "medium", "low"],
+      "description": "Base severity assigned by the rule definition, before scoring/weighting."
+    },
+    "risk_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Computed risk score for this finding."
+    },
+    "score_breakdown": {
+      "type": "array",
+      "description": "Transparent list of factors that contributed to the risk score.",
+      "items": {
+        "type": "object",
+        "required": ["factor", "weight", "description"],
+        "properties": {
+          "factor": {
+            "type": "string",
+            "description": "Short identifier for the contributing factor, e.g. 'public_access'."
+          },
+          "weight": {
+            "type": "number",
+            "description": "Points contributed to the total risk_score by this factor."
+          },
+          "description": {
+            "type": "string",
+            "description": "Short human-readable reason for this factor's inclusion."
+          }
+        }
+      }
+    },
+    "compliance_mappings": {
+      "type": "array",
+      "description": "Compliance frameworks and clauses this finding relates to.",
+      "items": {
+        "type": "object",
+        "required": ["framework", "clause", "clause_description"],
+        "properties": {
+          "framework": {
+            "type": "string",
+            "description": "e.g. 'PCI-DSS', 'SOC2'."
+          },
+          "clause": {
+            "type": "string",
+            "description": "e.g. '1.3.4'."
+          },
+          "clause_description": {
+            "type": "string",
+            "description": "Short description of the requirement being violated."
+          }
+        }
+      }
+    },
+    "explanation": {
+      "type": "object",
+      "required": ["issue", "consequence", "fix", "projected_score_after_fix"],
+      "properties": {
+        "issue": {
+          "type": "string",
+          "description": "Plain-English description of what is wrong."
+        },
+        "consequence": {
+          "type": "string",
+          "description": "Real-world impact if left unaddressed."
+        },
+        "fix": {
+          "type": "string",
+          "description": "Recommended remediation steps."
+        },
+        "projected_score_after_fix": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Estimated risk_score after the recommended fix is applied."
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["open", "acknowledged", "remediated", "false_positive"],
+      "description": "Current workflow status of this finding."
+    },
+    "detected_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 timestamp when this finding was first detected."
+    },
+    "last_seen_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 timestamp when this finding was last confirmed present."
+    }
+  }
+}
