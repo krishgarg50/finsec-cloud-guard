@@ -37,7 +37,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "description": "Resource type, e.g. 's3_bucket', 'iam_policy', 'security_group', 'ebs_volume', 'rds_instance', 'iam_user'."
+          "description": "Resource type, e.g. 's3_bucket', 'iam_policy', 'security_group', 'ebs_volume', 'rds_instance', 'iam_user', 'account'."
         },
         "id": {
           "type": "string",

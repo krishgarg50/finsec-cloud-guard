@@ -1,25 +1,29 @@
-# Secrets
-.env
-*.pem
-*.csv
-
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+build/
+dist/
 .venv/
 venv/
-*.egg-info/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
-# Database
-*.db
-*.sqlite3
+# The demo database. Regenerate with:
+#   python -m p3_api.cli seed data/mock_findings.raw.json
+# Committed findings would hide a broken ingest path behind stale data.
+# docs/INTEGRATION_CONTRACT.md is generated too, but stays committed --
+# `scripts/generate_contract_doc.py --check` is what keeps it honest.
+data/*.db
+data/*.db-wal
+data/*.db-shm
 
-# Node / frontend
-node_modules/
-dist/
-build/
-
-# OS/editor
-.DS_Store
+# Editors / OS
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "explainable-cspm"
+version = "0.1.0"
+description = "Explainable cloud misconfiguration detection for regulated industries"
+requires-python = ">=3.10"
+
+# P2 (p2_scoring) is stdlib-only by design so its owner can run and test it
+# without installing anything. P3 needs the web stack.
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "pydantic>=2.5",
+]
+
+[project.optional-dependencies]
+# Schema validation + the test suite.
+dev = [
+    "pytest>=7.4",
+    "jsonschema>=4.20",
+    "httpx>=0.27",  # FastAPI TestClient
+]
+
+[tool.setuptools]
+packages = ["p2_scoring", "p3_api"]
+
+[tool.setuptools.package-data]
+# The dashboard is three files served as-is. Without this they are absent from a
+# non-editable install and `/` returns "dashboard assets are missing".
+p3_api = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+# Deprecated API use in *this* project is an error -- that is the point of the
+# filter. But a blanket `error::DeprecationWarning` also promotes warnings raised
+# by third-party libraries at import time, and one of those (starlette's
+# TestClient importing an anyio alias) made tests/test_api.py uncollectable:
+#
+#   ERROR tests/test_api.py - DeprecationWarning: The anyio.abc.BlockingPortal
+#   alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+#
+# Nothing in this project can fix that, and losing the whole P3 suite to it is
+# far worse than the warning. So the error applies to our modules by name; the
+# default applies to everything else. The `module` field is a regex matched
+# against the start of the name of the module the warning is attributed to.
+filterwarnings = [
+    "error::DeprecationWarning:p2_scoring.*",
+    "error::DeprecationWarning:p3_api.*",
+    "error::DeprecationWarning:scripts.*",
+    "error::DeprecationWarning:test_.*",
+    "error::DeprecationWarning:conftest",
+    "default::DeprecationWarning",
+]
