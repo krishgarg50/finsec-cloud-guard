@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cloud Misconfiguration Risk Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <div>
+      <h1>Cloud Misconfiguration Risk</h1>
+      <p class="brand-sub" id="last-scan">Loading&hellip;</p>
+    </div>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Dashboard view">
+    <button class="tab is-active" role="tab" aria-selected="true" data-view="technical">
+      Technical
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-view="compliance">
+      Compliance
+    </button>
+  </nav>
+
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" id="refresh-btn" type="button" title="Reload data">
+      Refresh
+    </button>
+  </div>
+</header>
+
+<!-- ============================ TECHNICAL VIEW ============================ -->
+<main id="view-technical" class="view">
+
+  <section class="tiles" id="tiles" aria-label="Summary"></section>
+
+  <div class="chart-row">
+    <section class="card chart-card">
+      <div class="card-head">
+        <h2>Findings by severity</h2>
+        <p class="card-sub">Risk score bands across all findings</p>
+      </div>
+      <div id="chart-severity" class="chart-body"></div>
+    </section>
+
+    <section class="card chart-card">
+      <div class="card-head">
+        <h2>Findings by service</h2>
+        <p class="card-sub">Which AWS services carry the most findings</p>
+      </div>
+      <div id="chart-service" class="chart-body"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-head card-head-row">
+      <div>
+        <h2>Findings</h2>
+        <p class="card-sub" id="findings-sub">Loading&hellip;</p>
+      </div>
+      <div class="sort-control">
+        <label for="sort">Sort</label>
+        <select id="sort">
+          <option value="risk_score:desc">Risk score (high to low)</option>
+          <option value="risk_score:asc">Risk score (low to high)</option>
+          <option value="last_seen_at:desc">Last seen (newest)</option>
+          <option value="detected_at:desc">First detected (newest)</option>
+          <option value="resource_name:asc">Resource name (A&ndash;Z)</option>
+          <option value="rule_id:asc">Rule ID (A&ndash;Z)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filters" id="filters">
+      <div class="filter filter-search">
+        <label for="search">Search</label>
+        <input type="search" id="search" placeholder="Resource, rule or finding ID&hellip;" autocomplete="off">
+      </div>
+      <div class="multiselect" data-filter="band" data-label="Severity"></div>
+      <div class="multiselect" data-filter="status" data-label="Status"></div>
+      <div class="multiselect" data-filter="resource_type" data-label="Service"></div>
+      <div class="multiselect" data-filter="rule_id" data-label="Rule"></div>
+      <div class="multiselect" data-filter="detection_source" data-label="Detected by"></div>
+      <button class="btn btn-ghost filter-clear" id="clear-filters" type="button">Clear</button>
+    </div>
+
+    <div id="findings-list" class="findings-list" aria-live="polite"></div>
+  </section>
+</main>
+
+<!-- =========================== COMPLIANCE VIEW =========================== -->
+<main id="view-compliance" class="view" hidden>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Framework exposure</h2>
+      <p class="card-sub">
+        Every finding traced to the regulatory clause it breaches
+      </p>
+    </div>
+    <div id="framework-cards" class="framework-cards"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Clause detail</h2>
+      <p class="card-sub">The specific obligations driving each framework's count</p>
+    </div>
+    <div id="clause-tables" class="clause-tables"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Risk over time</h2>
+      <p class="card-sub">Findings first seen per scan, with average risk score</p>
+    </div>
+    <div id="chart-trend" class="chart-body"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Remediation queue</h2>
+      <p class="card-sub">Open findings, worst first &mdash; grouped by framework</p>
+    </div>
+    <div id="compliance-findings" class="findings-list"></div>
+  </section>
+</main>
+
+<!-- ============================ DETAIL DRAWER ============================ -->
+<aside id="drawer" class="drawer" hidden aria-label="Finding detail">
+  <div class="drawer-inner">
+    <button class="drawer-close" id="drawer-close" type="button" aria-label="Close">&times;</button>
+    <div id="drawer-body"></div>
+  </div>
+</aside>
+<div id="drawer-scrim" class="drawer-scrim" hidden></div>
+
+<div id="toast" class="toast" hidden role="status"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
