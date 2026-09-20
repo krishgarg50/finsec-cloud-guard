@@ -807,3 +807,69 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
   .finding-row { grid-template-columns: 48px 1fr; }
   .finding-right { grid-column: 1 / -1; padding-left: 62px; }
 }
+@media (max-width: 480px) {
+  .topbar {
+    padding: 10px 12px;
+  }
+
+  .brand {
+    width: 100%;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .topbar-actions .btn {
+    flex: 1 1 auto;
+  }
+
+  .view {
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .chart-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tiles {
+    grid-template-columns: 1fr;
+  }
+
+  .finding-row {
+    gap: 10px;
+  }
+
+  .finding-right {
+    padding-left: 58px;
+  }
+
+  .drawer-inner {
+    padding: 18px;
+  }
+
+  .kv {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .filter {
+    width: 100%;
+  }
+
+  .filter select,
+  .filter input {
+    max-width: none;
+    width: 100%;
+  }
+
+  .filter-clear {
+    margin-left: 0;
+  }
+}
