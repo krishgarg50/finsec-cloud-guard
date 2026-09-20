@@ -1,0 +1,248 @@
+[
+  {
+    "finding_id": "f1a1b111-0001-4a1a-9a11-000000000001",
+    "rule_id": "S3_PUBLIC_ACCESS",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "s3_bucket",
+      "id": "arn:aws:s3:::customer-statements-backup",
+      "name": "customer-statements-backup",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "context": {
+      "public_read_access": true,
+      "public_write_access": false,
+      "encryption_enabled": false,
+      "block_public_access": false
+    },
+    "status": "open",
+    "detected_at": "2026-08-20T09:12:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0002-4a1a-9a11-000000000002",
+    "rule_id": "IAM_WILDCARD_POLICY",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "iam_policy",
+      "id": "arn:aws:iam::123456789012:policy/legacy-admin-access",
+      "name": "legacy-admin-access",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "context": {
+      "wildcard_action": true,
+      "wildcard_resource": true,
+      "attached_user_count": 4,
+      "attached_role_count": 0
+    },
+    "status": "open",
+    "detected_at": "2026-08-19T14:03:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0003-4a1a-9a11-000000000003",
+    "rule_id": "IAM_ROOT_NO_MFA",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "iam_user",
+      "id": "arn:aws:iam::123456789012:root",
+      "name": "root",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "context": {
+      "is_root": true,
+      "mfa_enabled": false
+    },
+    "status": "acknowledged",
+    "detected_at": "2026-08-18T11:45:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0004-4a1a-9a11-000000000004",
+    "rule_id": "SG_OPEN_TO_WORLD",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "security_group",
+      "id": "sg-0a1b2c3d4e5f6g7h8",
+      "name": "db-server-sg",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "context": {
+      "open_cidrs": ["0.0.0.0/0"],
+      "exposed_ports": [3306],
+      "attached_to_prod": true
+    },
+    "status": "open",
+    "detected_at": "2026-08-21T16:30:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0005-4a1a-9a11-000000000005",
+    "rule_id": "RDS_NOT_ENCRYPTED",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "rds_instance",
+      "id": "arn:aws:rds:us-east-1:123456789012:db:transactions-db",
+      "name": "transactions-db",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "medium",
+    "context": {
+      "storage_encrypted": false
+    },
+    "status": "open",
+    "detected_at": "2026-08-22T10:00:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0006-4a1a-9a11-000000000006",
+    "rule_id": "CLOUDTRAIL_DISABLED",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "account",
+      "id": "arn:aws:cloudtrail:us-east-1:123456789012:trail/none",
+      "name": "account-123456789012",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "context": {
+      "active_trail_count": 0,
+      "multi_region_trail": false,
+      "has_log_history": false
+    },
+    "status": "open",
+    "detected_at": "2026-08-17T08:20:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0007-4a1a-9a11-000000000007",
+    "rule_id": "IAM_UNUSED_ACCESS_KEY",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "iam_user",
+      "id": "arn:aws:iam::123456789012:user/former-contractor",
+      "name": "former-contractor",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "low",
+    "context": {
+      "unused_days": 90
+    },
+    "status": "open",
+    "detected_at": "2026-08-15T13:00:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0008-4a1a-9a11-000000000008",
+    "rule_id": "S3_NO_VERSIONING",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "s3_bucket",
+      "id": "arn:aws:s3:::internal-reports-archive",
+      "name": "internal-reports-archive",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "low",
+    "context": {
+      "versioning_enabled": false,
+      "backup_configured": false
+    },
+    "status": "open",
+    "detected_at": "2026-08-23T12:10:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0009-4a1a-9a11-000000000009",
+    "rule_id": "RDS_PUBLICLY_ACCESSIBLE",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "rds_instance",
+      "id": "arn:aws:rds:us-east-1:123456789012:db:legacy-reporting-db",
+      "name": "legacy-reporting-db",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "context": {
+      "publicly_accessible": true,
+      "storage_encrypted": false,
+      "engine_version_supported": false
+    },
+    "status": "open",
+    "detected_at": "2026-08-16T09:40:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0010-4a1a-9a11-000000000010",
+    "rule_id": "IAM_USER_NO_MFA",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "iam_user",
+      "id": "arn:aws:iam::123456789012:user/j.patel",
+      "name": "j.patel",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "medium",
+    "context": {
+      "has_console_access": true,
+      "mfa_enabled": false,
+      "in_elevated_group": true
+    },
+    "status": "remediated",
+    "detected_at": "2026-08-10T10:00:00Z",
+    "last_seen_at": "2026-08-24T10:00:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0011-4a1a-9a11-000000000011",
+    "rule_id": "S3_NO_ENCRYPTION",
+    "scan_id": "scan-0002",
+    "resource": {
+      "type": "s3_bucket",
+      "id": "arn:aws:s3:::kyc-document-vault",
+      "name": "kyc-document-vault",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "medium",
+    "context": {
+      "encryption_enabled": false
+    },
+    "status": "open",
+    "detected_at": "2026-08-26T07:15:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0012-4a1a-9a11-000000000012",
+    "rule_id": "EBS_NOT_ENCRYPTED",
+    "scan_id": "scan-0002",
+    "resource": {
+      "type": "ebs_volume",
+      "id": "arn:aws:ec2:us-east-1:123456789012:volume/vol-0f9e8d7c6b5a43210",
+      "name": "payment-processing-vol",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "medium",
+    "context": {
+      "encryption_enabled": false,
+      "attached_to_instance": true,
+      "snapshot_count": 3
+    },
+    "status": "open",
+    "detected_at": "2026-08-25T11:05:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  }
+]

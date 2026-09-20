@@ -1,0 +1,313 @@
+[
+  {
+    "finding_id": "f1a1b111-0001-4a1a-9a11-000000000001",
+    "rule_id": "S3_PUBLIC_ACCESS",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "s3_bucket",
+      "id": "arn:aws:s3:::customer-statements-backup",
+      "name": "customer-statements-backup",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "risk_score": 92,
+    "score_breakdown": [
+      {"factor": "public_read_access", "weight": 40, "description": "Bucket ACL grants public read access"},
+      {"factor": "sensitive_data_likely", "weight": 30, "description": "Bucket name suggests customer financial data"},
+      {"factor": "no_encryption", "weight": 22, "description": "Default encryption is not enabled"}
+    ],
+    "compliance_mappings": [
+      {"framework": "PCI-DSS", "clause": "1.3.4", "clause_description": "Prohibit direct public access between the internet and any system component in the cardholder data environment"},
+      {"framework": "SOC2", "clause": "CC6.1", "clause_description": "Logical access controls restrict access to authorized users"}
+    ],
+    "explanation": {
+      "issue": "This storage bucket is accessible to anyone on the internet, not just authorized systems.",
+      "consequence": "Sensitive customer financial data could be viewed, downloaded, or leaked by unauthorized parties, potentially triggering regulatory penalties and breach disclosure obligations.",
+      "fix": "Enable S3 Block Public Access at the bucket and account level, and remove any public grants from the bucket ACL and bucket policy.",
+      "projected_score_after_fix": 15
+    },
+    "status": "open",
+    "detected_at": "2026-08-20T09:12:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0002-4a1a-9a11-000000000002",
+    "rule_id": "IAM_WILDCARD_POLICY",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "iam_policy",
+      "id": "arn:aws:iam::123456789012:policy/legacy-admin-access",
+      "name": "legacy-admin-access",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "risk_score": 88,
+    "score_breakdown": [
+      {"factor": "wildcard_action", "weight": 35, "description": "Policy grants Action: '*' across all services"},
+      {"factor": "wildcard_resource", "weight": 35, "description": "Policy grants Resource: '*'"},
+      {"factor": "attached_to_multiple_users", "weight": 18, "description": "Policy is attached to 4 IAM users"}
+    ],
+    "compliance_mappings": [
+      {"framework": "PCI-DSS", "clause": "7.1.2", "clause_description": "Restrict access to privileged user IDs to least privileges necessary"},
+      {"framework": "SOC2", "clause": "CC6.3", "clause_description": "Access is granted based on least privilege principle"}
+    ],
+    "explanation": {
+      "issue": "This permission policy grants full administrative access to every AWS service and resource, with no restrictions.",
+      "consequence": "Any account using this policy could modify, delete, or exfiltrate data across the entire cloud environment, and a single compromised credential could lead to a full account takeover.",
+      "fix": "Replace the wildcard policy with scoped permissions limited to only the specific actions and resources each user actually needs.",
+      "projected_score_after_fix": 20
+    },
+    "status": "open",
+    "detected_at": "2026-08-19T14:03:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0003-4a1a-9a11-000000000003",
+    "rule_id": "IAM_ROOT_NO_MFA",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "iam_user",
+      "id": "arn:aws:iam::123456789012:root",
+      "name": "root",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "risk_score": 85,
+    "score_breakdown": [
+      {"factor": "root_account", "weight": 45, "description": "Finding applies to the root account, which has unrestricted access"},
+      {"factor": "no_mfa", "weight": 40, "description": "Multi-factor authentication is not enabled"}
+    ],
+    "compliance_mappings": [
+      {"framework": "PCI-DSS", "clause": "8.3.1", "clause_description": "Incorporate multi-factor authentication for all access into the cardholder data environment"},
+      {"framework": "SOC2", "clause": "CC6.1", "clause_description": "Logical access controls restrict access to authorized users"}
+    ],
+    "explanation": {
+      "issue": "The root account, which has unrestricted control over the entire cloud environment, does not have multi-factor authentication enabled.",
+      "consequence": "If the root password is ever compromised, an attacker would gain complete, unrestricted control of the account with no second layer of protection.",
+      "fix": "Enable a hardware or virtual MFA device on the root account immediately, and avoid using the root account for day-to-day operations.",
+      "projected_score_after_fix": 10
+    },
+    "status": "acknowledged",
+    "detected_at": "2026-08-18T11:45:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0004-4a1a-9a11-000000000004",
+    "rule_id": "SG_OPEN_TO_WORLD",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "security_group",
+      "id": "sg-0a1b2c3d4e5f6g7h8",
+      "name": "db-server-sg",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "risk_score": 80,
+    "score_breakdown": [
+      {"factor": "open_to_world", "weight": 40, "description": "Inbound rule allows 0.0.0.0/0"},
+      {"factor": "sensitive_port", "weight": 30, "description": "Port 3306 (MySQL) is exposed"},
+      {"factor": "attached_to_prod_instance", "weight": 10, "description": "Security group is attached to a production-tagged instance"}
+    ],
+    "compliance_mappings": [
+      {"framework": "PCI-DSS", "clause": "1.2.1", "clause_description": "Restrict inbound and outbound traffic to that which is necessary"},
+      {"framework": "SOC2", "clause": "CC6.6", "clause_description": "System boundaries are protected from unauthorized network access"}
+    ],
+    "explanation": {
+      "issue": "This database server's network access is open to the entire internet on its database port, rather than being restricted to trusted sources.",
+      "consequence": "Attackers can directly attempt to connect to the database from anywhere in the world, making it a prime target for brute-force attacks and data exfiltration.",
+      "fix": "Restrict the inbound rule to specific trusted IP ranges or internal security groups only, and remove the 0.0.0.0/0 entry.",
+      "projected_score_after_fix": 18
+    },
+    "status": "open",
+    "detected_at": "2026-08-21T16:30:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0005-4a1a-9a11-000000000005",
+    "rule_id": "RDS_NOT_ENCRYPTED",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "rds_instance",
+      "id": "arn:aws:rds:us-east-1:123456789012:db:transactions-db",
+      "name": "transactions-db",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "medium",
+    "risk_score": 62,
+    "score_breakdown": [
+      {"factor": "no_storage_encryption", "weight": 40, "description": "Storage encryption is disabled on this instance"},
+      {"factor": "sensitive_data_likely", "weight": 22, "description": "Database name suggests financial transaction data"}
+    ],
+    "compliance_mappings": [
+      {"framework": "PCI-DSS", "clause": "3.4", "clause_description": "Render cardholder data unreadable anywhere it is stored"},
+      {"framework": "GLBA", "clause": "Safeguards Rule", "clause_description": "Encrypt customer information at rest"}
+    ],
+    "explanation": {
+      "issue": "This database does not encrypt data at rest, meaning stored data is not protected if the underlying storage is ever accessed without authorization.",
+      "consequence": "In the event of physical media theft, storage misconfiguration, or unauthorized snapshot access, transaction data would be readable in plain form.",
+      "fix": "Enable storage encryption on a new encrypted instance and migrate data, since encryption cannot be enabled on an existing unencrypted RDS instance directly.",
+      "projected_score_after_fix": 25
+    },
+    "status": "open",
+    "detected_at": "2026-08-22T10:00:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0006-4a1a-9a11-000000000006",
+    "rule_id": "CLOUDTRAIL_DISABLED",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "account",
+      "id": "arn:aws:cloudtrail:us-east-1:123456789012:trail/none",
+      "name": "account-123456789012",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "risk_score": 78,
+    "score_breakdown": [
+      {"factor": "no_active_trail", "weight": 45, "description": "No active CloudTrail trail found for this account"},
+      {"factor": "no_audit_log_history", "weight": 33, "description": "No API activity history available for investigation"}
+    ],
+    "compliance_mappings": [
+      {"framework": "SOC2", "clause": "CC7.2", "clause_description": "System activity is monitored to detect anomalies"},
+      {"framework": "PCI-DSS", "clause": "10.1", "clause_description": "Implement audit trails to link access to system components to each individual user"}
+    ],
+    "explanation": {
+      "issue": "Account-level activity logging is not enabled, so there is no record of who did what across the cloud environment.",
+      "consequence": "In the event of a security incident, there would be no audit trail available to investigate what happened, when, or who was responsible — this also fails standard regulatory audit requirements.",
+      "fix": "Enable a multi-region CloudTrail trail with log file validation, and route logs to a dedicated, access-restricted S3 bucket.",
+      "projected_score_after_fix": 12
+    },
+    "status": "open",
+    "detected_at": "2026-08-17T08:20:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0007-4a1a-9a11-000000000007",
+    "rule_id": "IAM_UNUSED_ACCESS_KEY",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "iam_user",
+      "id": "arn:aws:iam::123456789012:user/former-contractor",
+      "name": "former-contractor",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "low",
+    "risk_score": 35,
+    "score_breakdown": [
+      {"factor": "unused_key_90_days", "weight": 25, "description": "Access key has not been used in over 90 days"},
+      {"factor": "user_likely_inactive", "weight": 10, "description": "Username suggests a former contractor account"}
+    ],
+    "compliance_mappings": [
+      {"framework": "SOC2", "clause": "CC6.2", "clause_description": "User access is removed in a timely manner when no longer required"}
+    ],
+    "explanation": {
+      "issue": "This user has an access key that has not been used in over 90 days, suggesting the account may no longer be needed.",
+      "consequence": "Stale, unmonitored credentials are a common target for attackers since their compromise is less likely to be noticed quickly.",
+      "fix": "Confirm whether this user still requires access; if not, deactivate the access key and disable or delete the account.",
+      "projected_score_after_fix": 5
+    },
+    "status": "open",
+    "detected_at": "2026-08-15T13:00:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0008-4a1a-9a11-000000000008",
+    "rule_id": "S3_NO_VERSIONING",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "s3_bucket",
+      "id": "arn:aws:s3:::internal-reports-archive",
+      "name": "internal-reports-archive",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "low",
+    "risk_score": 28,
+    "score_breakdown": [
+      {"factor": "no_versioning", "weight": 18, "description": "Bucket versioning is not enabled"},
+      {"factor": "no_recovery_mechanism", "weight": 10, "description": "No backup mechanism identified for this bucket"}
+    ],
+    "compliance_mappings": [
+      {"framework": "SOC2", "clause": "A1.2", "clause_description": "System components are recoverable in the event of data loss"}
+    ],
+    "explanation": {
+      "issue": "This bucket does not keep previous versions of files when they are changed or deleted.",
+      "consequence": "Accidental deletion, overwriting, or a ransomware-style attack could result in permanent, unrecoverable data loss.",
+      "fix": "Enable versioning on the bucket so that previous versions of objects can be restored if needed.",
+      "projected_score_after_fix": 8
+    },
+    "status": "open",
+    "detected_at": "2026-08-23T12:10:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0009-4a1a-9a11-000000000009",
+    "rule_id": "RDS_PUBLICLY_ACCESSIBLE",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "rds_instance",
+      "id": "arn:aws:rds:us-east-1:123456789012:db:legacy-reporting-db",
+      "name": "legacy-reporting-db",
+      "region": "us-east-1"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "high",
+    "risk_score": 90,
+    "score_breakdown": [
+      {"factor": "publicly_accessible", "weight": 45, "description": "Instance is flagged as publicly accessible"},
+      {"factor": "no_encryption", "weight": 25, "description": "Storage encryption is also disabled on this instance"},
+      {"factor": "outdated_engine_version", "weight": 12, "description": "Database engine version is past its support window"}
+    ],
+    "compliance_mappings": [
+      {"framework": "PCI-DSS", "clause": "1.3.4", "clause_description": "Prohibit direct public access between the internet and any system component in the cardholder data environment"},
+      {"framework": "GLBA", "clause": "Safeguards Rule", "clause_description": "Restrict access to customer information systems"}
+    ],
+    "explanation": {
+      "issue": "This database is directly reachable from the public internet rather than being restricted to internal systems.",
+      "consequence": "This significantly increases the attack surface for one of the most sensitive components in the environment, and combined with disabled encryption, exposes data both in transit exposure risk and at rest.",
+      "fix": "Disable public accessibility on the instance, place it in a private subnet, and enable storage encryption on a migrated, encrypted instance.",
+      "projected_score_after_fix": 20
+    },
+    "status": "open",
+    "detected_at": "2026-08-16T09:40:00Z",
+    "last_seen_at": "2026-08-27T09:12:00Z"
+  },
+  {
+    "finding_id": "f1a1b111-0010-4a1a-9a11-000000000010",
+    "rule_id": "IAM_USER_NO_MFA",
+    "scan_id": "scan-0001",
+    "resource": {
+      "type": "iam_user",
+      "id": "arn:aws:iam::123456789012:user/j.patel",
+      "name": "j.patel",
+      "region": "global"
+    },
+    "detection_source": "rule_engine",
+    "severity_raw": "medium",
+    "risk_score": 55,
+    "score_breakdown": [
+      {"factor": "console_access_no_mfa", "weight": 35, "description": "User has console password access without MFA enabled"},
+      {"factor": "has_elevated_permissions", "weight": 15, "description": "User is a member of a group with elevated permissions"}
+    ],
+    "compliance_mappings": [
+      {"framework": "PCI-DSS", "clause": "8.3.1", "clause_description": "Incorporate multi-factor authentication for all access into the cardholder data environment"}
+    ],
+    "explanation": {
+      "issue": "This user can log into the AWS console with just a password, without a second authentication factor.",
+      "consequence": "If this user's password is compromised through phishing or credential reuse, an attacker could gain access to systems this user can reach.",
+      "fix": "Require MFA enrollment for this user before their next login, and consider enforcing an account-wide MFA policy.",
+      "projected_score_after_fix": 20
+    },
+    "status": "remediated",
+    "detected_at": "2026-08-10T10:00:00Z",
+    "last_seen_at": "2026-08-24T10:00:00Z"
+  }
+]
