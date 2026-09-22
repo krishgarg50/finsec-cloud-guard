@@ -365,20 +365,11 @@ function renderTiles() {
 /* ------------------------------------------------------------ findings list */
 
 function findingRowHTML(finding) {
-  finding = finding || {};
-  finding.resource = finding.resource || {};
-  finding.compliance_mappings = Array.isArray(finding.compliance_mappings)
-    ? finding.compliance_mappings
-    : [];
-  finding.risk_score = Number(finding.risk_score) || 0;
-  finding.status = finding.status || 'open';
-  finding.finding_id = finding.finding_id || 'unknown';
-  finding.rule_id = finding.rule_id || 'unknown';
   const band = bandOf(finding.risk_score);
   const ruleTitle = (state.rulesById[finding.rule_id] || {}).title || finding.rule_id;
   const isAnomaly = finding.detection_source === 'anomaly_detection';
 
-  const frameworks = finding.compliance_mappings.map((m) => m.framework);
+  const frameworks = (finding.compliance_mappings || []).map((m) => m.framework);
   const uniqueFrameworks = [...new Set(frameworks)];
 
   return `
