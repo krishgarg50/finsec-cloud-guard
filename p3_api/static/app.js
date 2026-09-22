@@ -369,7 +369,7 @@ function findingRowHTML(finding) {
   const ruleTitle = (state.rulesById[finding.rule_id] || {}).title || finding.rule_id;
   const isAnomaly = finding.detection_source === 'anomaly_detection';
 
-  const frameworks = finding.compliance_mappings.map((m) => m.framework);
+  const frameworks = (finding.compliance_mappings || []).map((m) => m.framework);
   const uniqueFrameworks = [...new Set(frameworks)];
 
   return `
