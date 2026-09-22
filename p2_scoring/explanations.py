@@ -109,6 +109,37 @@ def _sg_issue(s: Mapping[str, Any]) -> str:
     )
 
 
+def _sg_consequence(s: Mapping[str, Any]) -> str:
+    port = s.get("first_sensitive_port")
+    if port:
+        base = (
+            f"Attackers can directly attempt to connect to port {port} from anywhere in the "
+            f"world, making it a prime target for brute-force attacks and exploitation."
+        )
+    else:
+        # No specific port was identified (e.g. an all-traffic rule where P1
+        # could not enumerate a port range) -- see docs/P2_DECISIONS_LOG.md
+        # item 1. Say "this exposure" rather than "this port" so the sentence
+        # stays honest about what was actually observed instead of implying a
+        # port that was never named in the issue text above it.
+        base = (
+            "Attackers can directly attempt to reach this exposure from anywhere in the world, "
+            "making it a prime target for brute-force attacks and exploitation."
+        )
+
+    if s.get("attached_to_prod"):
+        # attached_to_prod contributes its own scoring factor
+        # (attached_to_prod_instance) -- the explanation should say why that
+        # extra weight was applied, not leave a scored fact unmentioned in
+        # the narrative half of the card.
+        base += (
+            " This exposure appears to be on a production resource, meaning a successful "
+            "attack could directly affect live systems and data rather than a test or "
+            "staging environment."
+        )
+    return base
+
+
 TEMPLATES: Mapping[str, ExplanationTemplate] = {
     "S3_PUBLIC_ACCESS": ExplanationTemplate(
         issue=(
@@ -202,10 +233,7 @@ TEMPLATES: Mapping[str, ExplanationTemplate] = {
     ),
     "SG_OPEN_TO_WORLD": ExplanationTemplate(
         issue=_sg_issue,
-        consequence=(
-            "Attackers can directly attempt to connect to this port from anywhere in the "
-            "world, making it a prime target for brute-force attacks and exploitation."
-        ),
+        consequence=_sg_consequence,
         fix=(
             "Restrict the inbound rule to specific trusted IP ranges or internal security "
             "groups only, and remove the 0.0.0.0/0 entry."
@@ -249,8 +277,8 @@ TEMPLATES: Mapping[str, ExplanationTemplate] = {
     ),
     "CLOUDTRAIL_DISABLED": ExplanationTemplate(
         issue=(
-            "Account-level activity logging is not enabled, so there is no record of who did "
-            "what across the cloud environment."
+            "Account-level activity logging is not enabled for {name}, so there is no record "
+            "of who did what across the cloud environment."
         ),
         consequence=(
             "In the event of a security incident, there would be no audit trail available to "

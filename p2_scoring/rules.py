@@ -174,7 +174,6 @@ UNSCORED_CONTEXT_KEYS: frozenset[str] = frozenset(
         "block_public_access",  # S3_PUBLIC_ACCESS
         "attached_role_count",  # IAM_WILDCARD_POLICY
         "snapshot_count",  # EBS_NOT_ENCRYPTED
-        "multi_region_trail",  # CLOUDTRAIL_DISABLED
     }
 )
 
@@ -659,6 +658,17 @@ RULES: tuple[DetectionRule, ...] = (
                 "No API activity history available for investigation",
                 _absent_or_false("has_log_history"),
                 requires=("has_log_history",),
+            ),
+            Factor(
+                "single_region_trail_only",
+                10,
+                "An active trail exists but is not configured for multi-region logging",
+                # Only meaningful when a trail actually exists -- if there is no
+                # trail at all, "not multi-region" is a secondary point already
+                # covered by no_active_trail (45 pts), and charging for both
+                # would double-count one underlying gap.
+                lambda s: (s.get("active_trail_count") or 0) > 0 and not s.get("multi_region_trail"),
+                requires=("active_trail_count", "multi_region_trail"),
             ),
         ),
         residual_score=12,

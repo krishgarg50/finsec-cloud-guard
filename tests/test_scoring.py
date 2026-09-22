@@ -139,7 +139,10 @@ def test_explicit_null_counts_as_absent():
     """P1 sending a key with a null value is not evidence of a misconfiguration."""
     result = score_finding(_raw("CLOUDTRAIL_DISABLED", active_trail_count=None, has_log_history=None))
     assert result.risk_score == 0
-    assert set(result.missing_evidence) == {"active_trail_count", "has_log_history"}
+    # multi_region_trail is also absent here (never passed to _raw), and is now
+    # required by the single_region_trail_only factor added in Week 5 -- see
+    # docs/P2_DECISIONS_LOG.md item 5.
+    assert set(result.missing_evidence) == {"active_trail_count", "has_log_history", "multi_region_trail"}
 
 
 def test_missing_evidence_is_reported_for_diagnosis():

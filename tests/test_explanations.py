@@ -133,3 +133,58 @@ class TestWordingAdaptsToFacts:
         for rule_id in ("S3_PUBLIC_ACCESS", "RDS_NOT_ENCRYPTED", "IAM_WILDCARD_POLICY"):
             card = explanation_for({"name": "my-resource"}, rule_id)
             assert "my-resource" in card["issue"], rule_id
+
+
+class TestMultipleFactorsReadCoherently:
+    """When two scored factors fire on the same finding, the card must
+    represent both facts in one coherent narrative -- not silently drop one
+    of them, and not read as two disconnected sentences bolted together.
+
+    Added in Week 6 after `SG_OPEN_TO_WORLD`'s real-scan test run (see
+    docs/P2_DECISIONS_LOG.md) showed a scored factor -- `attached_to_prod`
+    -- that contributed to the risk score but was never mentioned in the
+    explanation card at all.
+    """
+
+    def test_sg_card_mentions_both_port_and_prod_when_both_fire(self):
+        card = explanation_for(
+            {
+                "name": "db-server-sg",
+                "first_sensitive_port": 3306,
+                "first_sensitive_service": "MySQL",
+                "attached_to_prod": True,
+            },
+            "SG_OPEN_TO_WORLD",
+        )
+        assert "3306" in card["issue"]
+        assert "production" in card["consequence"]
+
+    def test_sg_card_still_reads_correctly_with_no_port_and_prod_true(self):
+        """Regression test: previously the consequence text said 'connect to
+        this port' even when no port had been identified anywhere in the
+        card, which read as an inconsistency an auditor would notice."""
+        card = explanation_for(
+            {"name": "wide-open-sg", "attached_to_prod": True},
+            "SG_OPEN_TO_WORLD",
+        )
+        assert "this port" not in card["consequence"]
+        assert "this exposure" in card["consequence"]
+        assert "production" in card["consequence"]
+
+    def test_sg_card_omits_prod_sentence_when_factor_does_not_fire(self):
+        card = explanation_for(
+            {"name": "scratch-sg", "first_sensitive_port": 22, "attached_to_prod": False},
+            "SG_OPEN_TO_WORLD",
+        )
+        assert "production" not in card["consequence"]
+
+    def test_s3_public_access_card_handles_sensitive_data_signal_alone(self):
+        """Two-factor coherence check on a different rule, so this isn't a
+        single-rule fluke: sensitive-data wording must appear when that
+        factor fires, and only then."""
+        card = explanation_for(
+            {"name": "customer-statements-backup", "sensitive_data_likely": True},
+            "S3_PUBLIC_ACCESS",
+        )
+        assert "customer financial data" in card["consequence"]
+        assert "customer-statements-backup" in card["issue"]
